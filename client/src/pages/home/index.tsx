@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import ShoppingCart from '@/components/ShoppingCart';
 import { products } from '@/lib/products';
@@ -23,6 +24,15 @@ export default function Home() {
     handleRemoveItem,
     handleNewsletterSignup,
   } = useCartLogic();
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      setTimeout(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, []);
 
   const handleViewCatalog = () => {
     document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });

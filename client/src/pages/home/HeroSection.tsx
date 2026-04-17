@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
 
 interface HeroSectionProps {
   onViewCatalog: () => void;
@@ -29,7 +30,7 @@ export function HeroSection({ onViewCatalog }: HeroSectionProps) {
               >
                 Ver Catálogo
               </Button>
-              <a href="/designer">
+              <Link href="/designer">
                 <Button
                   variant="outline"
                   className="border-foreground text-foreground hover:bg-secondary font-bold uppercase tracking-wider px-8 h-12 rounded-sm"
@@ -37,7 +38,7 @@ export function HeroSection({ onViewCatalog }: HeroSectionProps) {
                 >
                   Diseñar
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
 

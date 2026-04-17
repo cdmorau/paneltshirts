@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
 
 export function DesignerCTA() {
   return (
@@ -15,20 +16,20 @@ export function DesignerCTA() {
               Combina imágenes, ajusta proporciones y previsualiza el
               resultado en tiempo real sobre la camiseta en 3D.
             </p>
-            <a href="/designer">
+            <Link href="/designer">
               <Button
                 className="bg-background text-foreground hover:bg-secondary font-bold uppercase tracking-wider px-10 h-12 rounded-sm mt-4"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 Abrir Diseñador →
               </Button>
-            </a>
+            </Link>
           </div>
           <div className="hidden md:grid grid-cols-2 gap-3 opacity-90">
             {[1, 2, 3, 4].map((n) => (
               <img
                 key={n}
-                src={`/images/Panel Web-0${n}.svg`}
+                src={`${import.meta.env.BASE_URL}images/Panel Web-0${n}.svg`}
                 alt={`Ejemplo de panel ${n}`}
                 className="w-full h-auto rounded-sm invert opacity-90 transition-transform duration-300 hover:-translate-y-2 hover:opacity-100 cursor-pointer"
               />
