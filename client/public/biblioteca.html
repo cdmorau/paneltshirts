@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window._appBase = new URL('.', document.URL).pathname.replace(/\/$/, '');</script>
 <title>Biblioteca Panel</title>
 <style>
 :root {
@@ -361,7 +362,7 @@ body {
   <span id="lib-count"></span>
   <button id="lib-mezclar">MEZCLAR</button>
   <button id="lib-regenerar" title="Nueva disposición">↻</button>
-  <a id="lib-nav-link" href="/designer" target="_top">← Diseñador</a>
+  <a id="lib-nav-link" href="javascript:void(0)" onclick="(window.top||window).location.href=(window._appBase||'')+'/designer'" target="_top">← Diseñador</a>
 </div>
 
 <!-- ── BODY SPLIT ── -->
@@ -1265,7 +1266,7 @@ function renderCart() {
 function goToDesigner() {
   if (!CART.size) return;
   _persistCart(); // already up-to-date, but ensure final state is saved
-  (window.top || window).location.href = '/designer';
+  (window.top || window).location.href = (window._appBase || '') + '/designer';
 }
 
 // ══════════════════════════════════════════════════════

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShoppingBag, Menu, X } from 'lucide-react';
+import { Link } from 'wouter';
 
 interface NavBarProps {
   cartCount?: number;
@@ -28,12 +29,12 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
           <a href="/#about" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
-          <a href="/designer" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <Link href="/designer" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Diseñar
-          </a>
-          <a href="/biblioteca" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          </Link>
+          <Link href="/biblioteca" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Biblioteca
-          </a>
+          </Link>
         </div>
 
         {/* Cart & Hamburger */}
@@ -72,12 +73,12 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
           <a href="/#about" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
-          <a href="/designer" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <Link href="/designer" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Diseñar
-          </a>
-          <a href="/biblioteca" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          </Link>
+          <Link href="/biblioteca" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Biblioteca
-          </a>
+          </Link>
         </div>
       )}
     </nav>

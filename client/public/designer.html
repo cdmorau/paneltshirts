@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window._appBase = new URL('.', document.URL).pathname.replace(/\/$/, '');</script>
 <title>Panel Designer</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -636,7 +637,7 @@ body {
         </label>
         <button class="tbtn" id="btn-clean" title="Ocultar divisores">👁</button>
         <button class="tbtn" id="btn-clear" title="Limpiar">🧹</button>
-        <a href="/biblioteca" target="_top" style="font-family:var(--font);font-size:11px;color:var(--sel);text-decoration:none;padding:4px 8px;border:1px solid var(--sel);border-radius:3px;white-space:nowrap;transition:background .12s,color .12s" onmouseover="this.style.background='var(--sel)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--sel)'">Biblioteca →</a>
+        <a href="javascript:void(0)" onclick="(window.top||window).location.href=(window._appBase||'')+'/biblioteca'" target="_top" style="font-family:var(--font);font-size:11px;color:var(--sel);text-decoration:none;padding:4px 8px;border:1px solid var(--sel);border-radius:3px;white-space:nowrap;transition:background .12s,color .12s" onmouseover="this.style.background='var(--sel)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--sel)'">Biblioteca →</a>
       </div>
     </div>
 
@@ -3053,7 +3054,7 @@ function initGallery() {
   addBtn.title = 'Agregar paneles desde la biblioteca';
   addBtn.innerHTML = '<span class="add-icon">+</span><span class="add-lbl">Agregar paneles</span>';
   addBtn.addEventListener('click', () => {
-    (window.top || window).location.href = '/biblioteca';
+    (window.top || window).location.href = (window._appBase || '') + '/biblioteca';
   });
   grid.appendChild(addBtn);
 
