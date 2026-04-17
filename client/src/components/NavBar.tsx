@@ -7,6 +7,8 @@ interface NavBarProps {
   onCartOpen?: () => void;
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -14,19 +16,19 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
     <nav className="sticky top-0 z-30 bg-background border-b border-border flex-shrink-0">
       <div className="w-full flex items-center justify-between h-16 pl-3 pr-4 md:pl-4 md:pr-8">
         {/* Logo */}
-        <a href="/" className="flex items-center">
-          <img src="/images/logoPanel.svg" alt="PANEL!" className="h-11 w-auto" />
-        </a>
+        <Link href="/" className="flex items-center">
+          <img src={`${import.meta.env.BASE_URL}images/logoPanel.svg`} alt="PANEL!" className="h-11 w-auto" />
+        </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          <a href="/#featured" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#featured`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Destacados
           </a>
-          <a href="/#catalog" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#catalog`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Catálogo
           </a>
-          <a href="/#about" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#about`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
           <Link href="/designer" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -64,13 +66,13 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-border p-4 space-y-3">
-          <a href="/#featured" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#featured`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Destacados
           </a>
-          <a href="/#catalog" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#catalog`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Catálogo
           </a>
-          <a href="/#about" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href={`${base}/#about`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
           <Link href="/designer" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
