@@ -15,10 +15,6 @@
   </head>
 
   <body>
-    <script>
-      const r = new URLSearchParams(window.location.search).get('r');
-      if (r) window.history.replaceState(null, '', r);
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
