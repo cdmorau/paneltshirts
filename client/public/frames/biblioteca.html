@@ -280,11 +280,16 @@ body {
 /* cart cells */
 .cart-cell {
   position: absolute;
-  overflow: hidden;
+  overflow: visible;
   background: #fff;
   cursor: pointer;
 }
-.cart-cell::after {
+.cart-cell-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.cart-cell-inner::after {
   content: '×';
   position: absolute;
   inset: 0;
@@ -296,13 +301,48 @@ body {
   align-items: center;
   justify-content: center;
 }
-.cart-cell:hover::after { display: flex; }
+.cart-cell:hover .cart-cell-inner::after { display: flex; }
 .cart-cell img {
   display: block;
   pointer-events: none;
   position: absolute;
   transform-origin: 50% 50%;
 }
+.cart-rot-btn {
+  position: absolute;
+  bottom: -8px; right: -8px;
+  width: 18px; height: 18px;
+  background: var(--sel);
+  border-radius: 50%;
+  border: none; cursor: pointer;
+  color: #fff; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s;
+  z-index: 10; pointer-events: all;
+}
+.cart-cell:hover .cart-rot-btn { opacity: 1; }
+.cart-rot-popover {
+  position: absolute;
+  bottom: 14px; right: -4px;
+  background: #222; border-radius: 4px;
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px 8px; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  white-space: nowrap;
+}
+.cart-rot-popover button {
+  background: none; border: none; color: #fff;
+  font-size: 14px; cursor: pointer; opacity: .75; padding: 0 2px;
+}
+.cart-rot-popover button:hover { opacity: 1; }
+.cart-rot-popover input[type=number] {
+  width: 36px; background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3); border-radius: 2px;
+  color: #fff; font-size: 10px; text-align: center;
+  padding: 1px 3px; font-family: var(--font); -moz-appearance: textfield;
+}
+.cart-rot-popover input[type=number]::-webkit-inner-spin-button,
+.cart-rot-popover input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 #lib-cart-footer {
   padding: 10px 14px 12px;
@@ -1123,6 +1163,7 @@ function relayout(newRandom = true) {
 //  CART STATE
 // ══════════════════════════════════════════════════════
 const CART = new Map(); // imageId → count
+const CART_ROTATIONS = new Map(); // imageId → degrees
 
 // Restore cart from localStorage so selection persists across navigation
 (function() {
@@ -1194,12 +1235,52 @@ function renderCartLeaf(node, x, y, w, h, parent) {
   if (node.imageId !== null) {
     const imgData = IMAGES[node.imageId];
     if (imgData) {
-      const lay = computeImgLayout(imgData.ratio || 1, 0, w, h);
+      const rot = CART_ROTATIONS.get(node.imageId) || 0;
+      const inner = document.createElement('div');
+      inner.className = 'cart-cell-inner';
+      const lay = computeImgLayout(imgData.ratio || 1, rot, w, h);
       const img = document.createElement('img');
       img.src = imgData.src;
-      img.style.cssText = `width:${lay.iW}px;height:${lay.iH}px;left:${lay.left}px;top:${lay.top}px;`;
-      el.appendChild(img);
-      el.addEventListener('click', () => cartRemove(node.imageId));
+      img.style.cssText = `width:${lay.iW}px;height:${lay.iH}px;left:${lay.left}px;top:${lay.top}px;` +
+                          (rot ? `transform:rotate(${rot}deg);` : '');
+      inner.appendChild(img);
+      inner.addEventListener('click', () => cartRemove(node.imageId));
+      el.appendChild(inner);
+
+      // Rotation button
+      const rotBtn = document.createElement('button');
+      rotBtn.className = 'cart-rot-btn';
+      rotBtn.textContent = '↻';
+      rotBtn.title = 'Rotar';
+      rotBtn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        // Remove existing popovers
+        document.querySelectorAll('.cart-rot-popover').forEach(p => p.remove());
+        const pop = document.createElement('div');
+        pop.className = 'cart-rot-popover';
+        const btnM = document.createElement('button'); btnM.textContent = '↺'; btnM.title = '-15°';
+        const numI = document.createElement('input');  numI.type = 'number'; numI.min = 0; numI.max = 359;
+        numI.value = CART_ROTATIONS.get(node.imageId) || 0;
+        const btnP = document.createElement('button'); btnP.textContent = '↻'; btnP.title = '+15°';
+        function setRot(deg) {
+          deg = ((Math.round(deg) % 360) + 360) % 360;
+          CART_ROTATIONS.set(node.imageId, deg);
+          numI.value = deg;
+          renderCart();
+        }
+        btnM.addEventListener('click', ev2 => { ev2.stopPropagation(); setRot((CART_ROTATIONS.get(node.imageId) || 0) - 15); });
+        btnP.addEventListener('click', ev2 => { ev2.stopPropagation(); setRot((CART_ROTATIONS.get(node.imageId) || 0) + 15); });
+        numI.addEventListener('change', ev2 => { ev2.stopPropagation(); setRot(parseInt(numI.value) || 0); });
+        numI.addEventListener('click',  ev2 => ev2.stopPropagation());
+        pop.append(btnM, numI, btnP);
+        el.appendChild(pop);
+        setTimeout(() => {
+          document.addEventListener('pointerdown', function oc(ev2) {
+            if (!pop.contains(ev2.target) && ev2.target !== rotBtn) { pop.remove(); document.removeEventListener('pointerdown', oc); }
+          });
+        }, 0);
+      });
+      el.appendChild(rotBtn);
     }
   }
   parent.appendChild(el);

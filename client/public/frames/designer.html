@@ -110,10 +110,12 @@ body {
   color: #fff; background: rgba(0,0,0,.55);
   padding: 1px 4px; border-radius: 2px; pointer-events: none; z-index: 5;
 }
-.thumb-rot-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; gap: 3px; padding: 2px 4px; z-index: 6; opacity: 0; pointer-events: none; transition: opacity .15s; }
-.thumb:hover .thumb-rot-bar { opacity: 1; pointer-events: all; }
-.thumb-rot-bar input[type=range] { flex: 1; min-width: 0; height: 10px; cursor: pointer; accent-color: var(--sel); }
-.thumb-rot-bar span { color: #fff; font-size: 9px; min-width: 24px; text-align: right; white-space: nowrap; }
+.rot-popover { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(18,18,18,.93); display: flex; align-items: center; gap: 4px; padding: 4px 6px; z-index: 20; }
+.rot-popover button { background: none; border: none; color: #fff; font-size: 14px; cursor: pointer; padding: 0 2px; opacity: .75; line-height: 1; }
+.rot-popover button:hover { opacity: 1; }
+.rot-popover input[type=number] { width: 36px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 2px; color: #fff; font-size: 10px; text-align: center; padding: 1px 3px; font-family: var(--font); -moz-appearance: textfield; }
+.rot-popover input[type=number]::-webkit-inner-spin-button, .rot-popover input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.rot-popover .rot-pop-close { margin-left: auto; font-size: 10px !important; }
 .thumb-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 11px; letter-spacing: 1px; }
 .add-panels-btn {
   aspect-ratio: 1; background: transparent; border: 2px dashed #d0d0d0;
@@ -220,15 +222,17 @@ body {
 
 .cell.dragging { opacity: 0.45; cursor: grabbing; }
 
-.cell-rot-bar {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,.65); display: flex; align-items: center;
-  gap: 4px; padding: 3px 6px; z-index: 17;
-  opacity: 0; pointer-events: none; transition: opacity .15s;
+.cell-rot-handle {
+  position: absolute; top: -22px; right: -2px;
+  width: 18px; height: 18px;
+  background: var(--sel); border-radius: 50%;
+  cursor: grab; display: none; z-index: 30;
+  align-items: center; justify-content: center;
+  font-size: 12px; color: #fff; user-select: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,.35); touch-action: none;
 }
-.cell.selected .cell-rot-bar { opacity: 1; pointer-events: all; }
-.cell-rot-bar input[type=range] { flex: 1; min-width: 0; height: 12px; cursor: pointer; accent-color: var(--sel); }
-.cell-rot-bar span { color: #fff; font-size: 10px; min-width: 30px; text-align: right; white-space: nowrap; }
+.cell.selected .cell-rot-handle { display: flex; }
+.cell-rot-handle:active { cursor: grabbing; }
 
 /* ── DIVIDERS ── */
 .divider { position: absolute; z-index: 20; display: flex; align-items: center; justify-content: center; }
@@ -319,16 +323,6 @@ body {
 }
 .free-el.sel .free-rot { display: block; }
 
-/* Barra de rotación en modo libre (visible al seleccionar) */
-.free-rot-bar {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,.65); display: flex; align-items: center;
-  gap: 4px; padding: 3px 6px; z-index: 17;
-  opacity: 0; pointer-events: none; transition: opacity .15s;
-}
-.free-el.sel .free-rot-bar { opacity: 1; pointer-events: all; }
-.free-rot-bar input[type=range] { flex: 1; min-width: 0; height: 12px; cursor: pointer; accent-color: var(--sel); }
-.free-rot-bar span { color: #fff; font-size: 10px; min-width: 30px; text-align: right; white-space: nowrap; }
 
 /* Deshabilitar resize handles del canvas en modo libre */
 #canvas.free-mode ~ .rh { display: none !important; }
@@ -631,10 +625,12 @@ body {
           <button id="bg-btn" title="Color de fondo"></button>
         </div>
         <div id="toolbar-spacer"></div>
-        <label style="color:#555;font-size:12px;display:flex;align-items:center;gap:4px" title="Rotar panel general">
-          ↻ <input type="range" id="panel-rotation" min="0" max="360" value="0" style="width:80px">
-          <span id="panel-rotation-val" style="width:30px;text-align:center">0°</span>
-        </label>
+        <div style="display:flex;align-items:center;gap:3px" title="Rotar panel general">
+          <button class="tbtn" id="btn-rot-minus" title="-15°">↺</button>
+          <input type="number" id="panel-rotation" min="0" max="359" value="0" style="width:42px;text-align:center;font-size:11px;font-family:inherit;border:1px solid #d0d0d0;border-radius:2px;padding:2px 3px">
+          <span style="font-size:11px;color:#555">°</span>
+          <button class="tbtn" id="btn-rot-plus" title="+15°">↻</button>
+        </div>
         <button class="tbtn" id="btn-clean" title="Ocultar divisores">👁</button>
         <button class="tbtn" id="btn-clear" title="Limpiar">🧹</button>
       </div>
@@ -673,7 +669,7 @@ body {
 let   IMAGES      = [];  // populated by probeImages() via manifest.json
 let   MARGIN_PCT  = 1;   // margen interior (% de la dimensión media del canvas)
 let   MARGIN      = 0;   // margen en px — se recalcula en cada render()
-let   CURRENT_BG  = '#ffffff';
+let   CURRENT_BG  = localStorage.getItem('panel-bg-color') || '#ffffff';
 let   PROP_W      = 7;   // proporción actual (ratio pequeño) — usada por t-shirt preview
 let   PROP_H      = 11;
 
@@ -1204,38 +1200,44 @@ const Renderer = (() => {
       });
       el.appendChild(lockBtn);
 
-      // ── Free rotation bar (visible when cell is selected) ──
-      const rotBar = document.createElement('div');
-      rotBar.className = 'cell-rot-bar';
-      const rotSlider = document.createElement('input');
-      rotSlider.type = 'range';
-      rotSlider.min = 0; rotSlider.max = 359; rotSlider.step = 1;
-      rotSlider.value = node.rotation || 0;
-      const rotDisp = document.createElement('span');
-      rotDisp.textContent = `${node.rotation || 0}°`;
-      rotSlider.addEventListener('click', e => e.stopPropagation());
-      rotSlider.addEventListener('mousedown', e => e.stopPropagation());
-      rotSlider.addEventListener('input', () => {
-        const angle = parseInt(rotSlider.value);
-        rotDisp.textContent = `${angle}°`;
-        const galleryRot = IMAGES[node.imageId]?.rotation || 0;
-        const total = (angle + galleryRot) % 360;
-        const lay = _computeImgLayout(total);
-        const cellImg = el.querySelector('img');
-        if (cellImg) {
-          cellImg.style.left   = lay.left + 'px';
-          cellImg.style.top    = lay.top  + 'px';
-          cellImg.style.width  = lay.iW   + 'px';
-          cellImg.style.height = lay.iH   + 'px';
-          cellImg.style.transform = total ? `rotate(${total}deg)` : '';
+      // ── Drag-to-rotate handle (visible when cell is selected) ──
+      const rotHandle = document.createElement('div');
+      rotHandle.className = 'cell-rot-handle';
+      rotHandle.textContent = '↻';
+      rotHandle.addEventListener('pointerdown', e => {
+        e.stopPropagation(); e.preventDefault();
+        rotHandle.setPointerCapture(e.pointerId);
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top  + rect.height / 2;
+        const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+        const startRot   = node.rotation || 0;
+        let pendingRot   = startRot;
+        function onMove(ev) {
+          const angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI;
+          let newRot = ((startRot + angle - startAngle) % 360 + 360) % 360;
+          if (ev.shiftKey) newRot = Math.round(newRot / 15) * 15;
+          pendingRot = Math.round(newRot);
+          const galleryRot = IMAGES[node.imageId]?.rotation || 0;
+          const total = (pendingRot + galleryRot) % 360;
+          const lay = _computeImgLayout(total);
+          const cellImg = el.querySelector('img');
+          if (cellImg) {
+            cellImg.style.left      = lay.left + 'px';
+            cellImg.style.top       = lay.top  + 'px';
+            cellImg.style.width     = lay.iW   + 'px';
+            cellImg.style.height    = lay.iH   + 'px';
+            cellImg.style.transform = total ? `rotate(${total}deg)` : '';
+          }
         }
+        function onUp() {
+          document.removeEventListener('pointermove', onMove);
+          Store.dispatch({ type: 'SET_IMAGE_ROTATION', nodeId: node.id, angle: pendingRot });
+        }
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp, { once: true });
       });
-      rotSlider.addEventListener('change', () => {
-        Store.dispatch({ type: 'SET_IMAGE_ROTATION', nodeId: node.id, angle: parseInt(rotSlider.value) });
-      });
-      rotBar.appendChild(rotSlider);
-      rotBar.appendChild(rotDisp);
-      el.appendChild(rotBar);
+      el.appendChild(rotHandle);
     }
 
     const btns = document.createElement('div');
@@ -1579,8 +1581,9 @@ const Renderer = (() => {
 
         function onMove(ev) {
           const angle = Math.atan2(ev.clientY - cy, ev.clientX - cx);
-          const delta = (angle - startAngle) * 180 / Math.PI;
-          _fdState = { id: origEl.id, rot: ((initRot + delta) % 360 + 360) % 360 };
+          let newRot = ((initRot + (angle - startAngle) * 180 / Math.PI) % 360 + 360) % 360;
+          if (ev.shiftKey) newRot = Math.round(newRot / 15) * 15;
+          _fdState = { id: origEl.id, rot: newRot };
           _fdRender();
         }
         function onUp() {
@@ -1598,37 +1601,11 @@ const Renderer = (() => {
       });
       div.appendChild(rotH);
 
-      // ── Slider de rotación (visible al seleccionar) ──
-      const rotBar = document.createElement('div');
-      rotBar.className = 'free-rot-bar';
-      const rotSlider = document.createElement('input');
-      rotSlider.type = 'range'; rotSlider.min = 0; rotSlider.max = 359; rotSlider.step = 1;
-      rotSlider.value = Math.round(origEl.rot || 0);
-      const rotDisp = document.createElement('span');
-      rotDisp.textContent = `${Math.round(origEl.rot || 0)}°`;
-      rotSlider.addEventListener('pointerdown', e => e.stopPropagation());
-      rotSlider.addEventListener('click', e => e.stopPropagation());
-      rotSlider.addEventListener('input', () => {
-        const angle = parseInt(rotSlider.value);
-        rotDisp.textContent = `${angle}°`;
-        _fdState = { id: origEl.id, rot: angle };
-        _fdRender();
-      });
-      rotSlider.addEventListener('change', () => {
-        const angle = parseInt(rotSlider.value);
-        Store.dispatch({ type: 'FREE_RESIZE', id: origEl.id, patch: { rot: angle } });
-        _fdState = null;
-      });
-      rotBar.appendChild(rotSlider);
-      rotBar.appendChild(rotDisp);
-      div.appendChild(rotBar);
 
       // MOVER: listeners en document — sobreviven a re-renders
       div.addEventListener('pointerdown', e => {
         if (e.target.classList.contains('free-rh') ||
             e.target.classList.contains('free-rot') ||
-            e.target.classList.contains('free-rot-bar') ||
-            e.target.closest('.free-rot-bar') ||
             e.target.classList.contains('cell-del')) return;
         e.stopPropagation();
         _fdActive = true;
@@ -2854,22 +2831,10 @@ const TshirtPreview = (() => {
 //  BACKGROUND COLOR
 // ══════════════════════════════════════════════════════
 const BG_PALETTE = [
-  // Claros
-  { color: '#ffffff', label: 'Blanco' },
-  { color: '#f5f0e8', label: 'Crema' },
-  { color: '#fde8e8', label: 'Rosa' },
-  { color: '#f3d5f5', label: 'Lavanda' },
-  { color: '#dde4fd', label: 'Azul cielo' },
-  { color: '#d5f0ea', label: 'Menta' },
-  { color: '#fdf5d5', label: 'Mantequilla' },
-  { color: '#d5f0f5', label: 'Aqua' },
-  { color: '#e0e0e0', label: 'Gris claro' },
-  // Oscuros
-  { color: '#3a3a3a', label: 'Grafito' },
-  { color: '#1e2a3a', label: 'Azul noche' },
-  { color: '#1e3a28', label: 'Verde bosque' },
-  { color: '#3a1e1e', label: 'Burdeos' },
   { color: '#1a1a1a', label: 'Negro' },
+  { color: '#1e3a28', label: 'Verde' },
+  { color: '#d5f0ea', label: 'Menta' },
+  { color: '#f5f0e8', label: 'Crema' },
 ];
 
 /** Luminancia perceptual (0=negro, 1=blanco). */
@@ -2887,6 +2852,7 @@ function closeBgDropdown() {
 
 function applyBgColor(color, label) {
   CURRENT_BG = color;
+  try { localStorage.setItem('panel-bg-color', color); } catch(e) {}
   const dark = hexLuminance(color) < 0.35;
   const filter = dark ? 'invert(1)' : '';
   document.documentElement.style.setProperty('--canvas-bg', color);
@@ -2972,29 +2938,39 @@ function _addThumb(img, grid) {
   lbl.className = 'thumb-lbl';
   lbl.textContent = img.lbl;
 
-  const rotBar = document.createElement('div');
-  rotBar.className = 'thumb-rot-bar';
-  const rotSlider = document.createElement('input');
-  rotSlider.type = 'range';
-  rotSlider.min = 0; rotSlider.max = 359; rotSlider.step = 1;
-  rotSlider.value = img.rotation || 0;
-  const rotDisp = document.createElement('span');
-  rotDisp.textContent = `${img.rotation || 0}°`;
-  rotSlider.addEventListener('click', e => e.stopPropagation());
-  rotSlider.addEventListener('mousedown', e => e.stopPropagation());
-  rotSlider.addEventListener('input', () => {
-    img.rotation = parseInt(rotSlider.value);
-    rotDisp.textContent = `${img.rotation}°`;
-    el.style.transform = img.rotation ? `rotate(${img.rotation}deg)` : '';
-    Renderer.render(Store.state);
-    TshirtPreview.redrawPrint();
-  });
-  rotBar.appendChild(rotSlider);
-  rotBar.appendChild(rotDisp);
-
   thumb.appendChild(el);
   thumb.appendChild(lbl);
-  thumb.appendChild(rotBar);
+
+  // Double-click → rotation popover
+  thumb.addEventListener('dblclick', e => {
+    e.stopPropagation(); e.preventDefault();
+    thumb.querySelector('.rot-popover')?.remove();
+    const pop = document.createElement('div');
+    pop.className = 'rot-popover';
+    const btnM = document.createElement('button'); btnM.textContent = '↺'; btnM.title = '-15°';
+    const numI = document.createElement('input');  numI.type = 'number'; numI.min = 0; numI.max = 359; numI.value = img.rotation || 0;
+    const btnP = document.createElement('button'); btnP.textContent = '↻'; btnP.title = '+15°';
+    const btnX = document.createElement('button'); btnX.className = 'rot-pop-close'; btnX.textContent = '✕';
+    function applyRot(deg) {
+      img.rotation = ((Math.round(deg) % 360) + 360) % 360;
+      numI.value = img.rotation;
+      el.style.transform = img.rotation ? `rotate(${img.rotation}deg)` : '';
+      Renderer.render(Store.state);
+      TshirtPreview.redrawPrint();
+    }
+    btnM.addEventListener('click', ev => { ev.stopPropagation(); applyRot((img.rotation || 0) - 15); });
+    btnP.addEventListener('click', ev => { ev.stopPropagation(); applyRot((img.rotation || 0) + 15); });
+    numI.addEventListener('change', ev => { ev.stopPropagation(); applyRot(parseInt(numI.value) || 0); });
+    numI.addEventListener('click',  ev => ev.stopPropagation());
+    btnX.addEventListener('click',  ev => { ev.stopPropagation(); pop.remove(); });
+    pop.append(btnM, numI, btnP, btnX);
+    thumb.appendChild(pop);
+    setTimeout(() => {
+      document.addEventListener('pointerdown', function oc(ev) {
+        if (!pop.contains(ev.target)) { pop.remove(); document.removeEventListener('pointerdown', oc); }
+      });
+    }, 0);
+  });
 
   // Drag con protección anti-scroll: solo permite drag si el gesto es horizontal.
   // Evita que al deslizar verticalmente la galería se arrastre la imagen por accidente.
@@ -3241,11 +3217,20 @@ function _saveCanvasState() {
   });
 
   // Panel general rotation
-  document.getElementById('panel-rotation').addEventListener('input', function() {
-    const deg = this.value;
-    document.getElementById('panel-rotation-val').textContent = deg + '°';
-    document.getElementById('canvas').style.transform = `rotate(${deg}deg)`;
+  function _applyPanelRot(deg) {
+    deg = ((Math.round(deg) % 360) + 360) % 360;
+    document.getElementById('panel-rotation').value = deg;
+    document.getElementById('canvas').style.transform = deg ? `rotate(${deg}deg)` : '';
     TshirtPreview.setPanelRotation(deg);
+  }
+  document.getElementById('panel-rotation').addEventListener('change', function() {
+    _applyPanelRot(parseInt(this.value) || 0);
+  });
+  document.getElementById('btn-rot-minus').addEventListener('click', () => {
+    _applyPanelRot((parseInt(document.getElementById('panel-rotation').value) || 0) - 15);
+  });
+  document.getElementById('btn-rot-plus').addEventListener('click', () => {
+    _applyPanelRot((parseInt(document.getElementById('panel-rotation').value) || 0) + 15);
   });
 
   // Settings dropdown removed — controls are inline in toolbar
