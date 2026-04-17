@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.manus-logs/
+client/public/images/
+client/public/__manus__/
+patches/
+pnpm-lock.yaml
+*.log
