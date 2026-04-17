@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Redirect SPA routes to index.html preserving the path
+      const repo = '/paneltshirts';
+      const path = window.location.pathname.replace(repo, '');
+      window.location.replace(repo + '/?r=' + encodeURIComponent(path) + window.location.search + window.location.hash);
+    </script>
+  </head>
+  <body></body>
+</html>

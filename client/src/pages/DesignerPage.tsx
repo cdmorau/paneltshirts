@@ -5,7 +5,7 @@ export default function DesignerPage() {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <NavBar />
       <iframe
-        src="/designer.html"
+        src={`${import.meta.env.BASE_URL}designer.html`}
         style={{ flex: 1, border: 'none', display: 'block', minHeight: 0 }}
         title="Panel Designer"
         allow="fullscreen"
