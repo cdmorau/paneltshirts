@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { ShoppingBag, Menu, X } from 'lucide-react';
 import { Link } from 'wouter';
+import logoUrl from '@/assets/logoPanel.svg';
 
 interface NavBarProps {
   cartCount?: number;
   onCartOpen?: () => void;
 }
 
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+function scrollToSection(id: string) {
+  return (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = `${import.meta.env.BASE_URL}#${id}`;
+    }
+  };
+}
 
 export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,18 +28,18 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
       <div className="w-full flex items-center justify-between h-16 pl-3 pr-4 md:pl-4 md:pr-8">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <img src={`${import.meta.env.BASE_URL}images/logoPanel.svg`} alt="PANEL!" className="h-11 w-auto" />
+          <img src={logoUrl} alt="PANEL!" className="h-11 w-auto" />
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          <a href={`${base}/#featured`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#featured" onClick={scrollToSection('featured')} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Destacados
           </a>
-          <a href={`${base}/#catalog`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#catalog" onClick={scrollToSection('catalog')} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Catálogo
           </a>
-          <a href={`${base}/#about`} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#about" onClick={scrollToSection('about')} className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
           <Link href="/designer" className="text-sm font-semibold hover:text-muted-foreground transition-colors" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -66,13 +77,13 @@ export default function NavBar({ cartCount = 0, onCartOpen }: NavBarProps) {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-border p-4 space-y-3">
-          <a href={`${base}/#featured`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#featured" onClick={scrollToSection('featured')} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Destacados
           </a>
-          <a href={`${base}/#catalog`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#catalog" onClick={scrollToSection('catalog')} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Catálogo
           </a>
-          <a href={`${base}/#about`} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <a href="#about" onClick={scrollToSection('about')} className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Acerca de
           </a>
           <Link href="/designer" className="block text-sm font-semibold hover:text-muted-foreground" style={{ fontFamily: "'Montserrat', sans-serif" }}>
